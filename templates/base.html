@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" href="../static/images/ShelfwormLogo.svg">
+    <title>Shelfworm</title>
+</head>
+<script>
+    function dropdown() {
+        document.getElementById("ProfileDropdownContent").classList.toggle("show");
+    }
+</script>
+<body>
+    <!-- Header -->
+    <header class="bg-background-light dark:bg-background-dark">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- The navigation bar at the top of the screen with a logo -->
+            <nav class="flex justify-between h-20">
+                <a href="/" class="flex items-center">
+                    <img src="../static/images/ShelfwormLogo.svg" alt="Shelfworm" class="h-20">
+                </a>
+                <div class="flex space-x-4 items-center">
+                    <a href="/search" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Shop</a>
+                    <a href="/cart" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Cart</a>
+                    {% if not current_user.is_authenticated %}
+                        <a href="/login" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Login</a>
+                        <a href="/register" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Register</a>
+                    {% elif current_user.is_authenticated %}
+                    <!-- Profile Dropdown menu -->
+                    <!-- Should show as a circle with the user's name next to it until clicked for now -->
+                    <div class="relative px-4" onclick="dropdown()">
+                        <div class="flex items-start">
+                            <div class="h-8 w-8 bg-background dark:bg-background-dark rounded-full flex items-center justify-center">
+                                <p class="text-sm font-medium text-text dark:text-text-dark hover:text-primary">{{ current_user.id }}</p>
+                            </div>
+                        </div>
+                        <div id="ProfileDropdownContent" class="hidden absolute right-0 mt-2 w-48 bg-background dark:bg-background-dark rounded-md shadow-lg z-10">
+                            <a href="/profile" class="block px-4 py-2 text-sm text-text dark:text-text-dark hover:bg-primary">Profile</a>
+                            <a href="/logout" class="block px-4 py-2 text-sm text-text dark:text-text-dark hover:bg-primary">Logout</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <!-- Footer -->
+    <footer class="bg-background dark:bg-background-dark">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex justify-between">
+                <div>
+                    <a href="#" class="text-sm font-medium text-text dark:text-text-dark hover:text-primary">
+                        Privacy Policy
+                    </a>
+                    <a href="#" class="ml-4 text-sm font-medium text-text dark:text-text-dark hover:text-primary">
+                        Terms of Service
+                    </a>
+                </div>
+                <div>
+                    <a href="mailto:bharris@wootton.beds.sch.uk" class="text-sm font-medium text-text dark:text-text-dark hover:text-primary">
+                        Contact Us
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
