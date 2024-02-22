@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+    <!-- The template page for each book. -->
+    <!-- The page will display the book's: title, author, genre, image, price and stock -->
+    <div class="flex align-center">
+        <div class="p-4 m-4 bg-background rounded-lg shadow-lg">
+            <!-- The book's title should be displayed above the image on the left -->
+            <div class="text-left font-bold text-4xl">
+                <span class="block font-sans">{{ book.title }}</span>
+                <span class="items-center">
+                    <img src="../static/images/TheCatcher.jpg" alt="Book Cover" class="w-1/2 h-1/2">
+                </span>
+            <div class="flex">
+                <div class="flex flex-col justify-between ml-4 p-4">
+                    <!-- The book's author should be displayed on the right -->
+                    <p class="text-xl font-semibold">Author: {{ book.author }}</p>
+                    <!-- The book's genre should be displayed on the right -->
+                    <p class="text-xl font-semibold">Genre: {{ book.genre }}</p>
+                    <!-- The book's price should be displayed on the right -->
+                    <p class="text-xl font-semibold">Price: £{{ book.price }}</p>
+                    <!-- The book's stock should be displayed on the right -->
+                    <p class="text-xl font-semibold">Stock: {{ book.stock }}</p>
+                    <div class="flex">
+                        <!-- The 'Add to Cart' button should be displayed on the right -->
+                        <form action="/add_to_cart/{{ book.id }}" method="post">
+                            <button type="submit" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg">Add to Cart</button>
+                        </form>
+                        <!-- The 'Back' button should be displayed on the right -->
+                        <a href="/books" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg ml-4">Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

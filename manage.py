@@ -25,9 +25,8 @@ class Database:
                          (username text, email text, image blob, signup date, PRIMARY KEY(username))''')
         c.execute('''CREATE TABLE IF NOT EXISTS passwords
                          (username text, password text, salt text, FOREIGN KEY(username) REFERENCES users(username))''')
-        c.execute('''CREATE TABLE IF NOT EXISTS books
-                         (title text, author text, genre text, isbn integer, image blob, summary text, price real, stock integer, PRIMARY KEY(isbn)''')
-        self.conn.commit()
+        c.execute('''CREATE TABLE IF NOT EXISTS books (title TEXT, author TEXT, genre TEXT, isbn INTEGER, image BLOB, 
+                    summary TEXT, price REAL, stock INTEGER, PRIMARY KEY(isbn))''')
 
     def add_user(self, username, password, email, image=None):
         c = self.conn.cursor()
@@ -49,6 +48,20 @@ class Database:
         c.close()
         return user
 
+    def get_user_password(self, username):
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM passwords WHERE username=?", (username,))
+        password = c.fetchone()
+        c.close()
+        return password
+
+    def get_password_salt(self, password):
+        c = self.conn.cursor()
+        c.execute("SELECT salt FROM passwords WHERE password=?", (password,))
+        salt = c.fetchone()
+        c.close()
+        return salt
+
     def add_book(self, title, author, genre, isbn, image, summary, price=0.00, stock=0):
         c = self.conn.cursor()
         c.execute("INSERT INTO books VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (title, author, genre, isbn, image, summary, price, stock))
@@ -63,25 +76,39 @@ class Database:
         return books
 
     def get_books_by_title(self, title):
+        """
+        :param title: The title of the book to search for
+        :type title: str
+        """
         c = self.conn.cursor()
-        c.execute("SELECT * FROM books WHERE title=?", (title,))
+        returnlist = []
+        title = '%' + title + '%'
+        c.execute("SELECT * FROM books WHERE title LIKE ?", (title,))
         books = c.fetchall()
+        for book in books:
+            returnlist.append(book)
         c.close()
-        return books
+        return returnlist
 
     def get_books_by_author(self, author):
         c = self.conn.cursor()
-        c.execute("SELECT * FROM books WHERE author=?", (author,))
+        returnlist = []
+        c.execute("SELECT * FROM books WHERE author=?", (f'%{author}%',))
         books = c.fetchall()
+        for book in books:
+            returnlist.append(book)
         c.close()
-        return books
+        return returnlist
 
     def get_books_by_genre(self, genre):
         c = self.conn.cursor()
+        returnlist = []
         c.execute("SELECT * FROM books WHERE genre=?", (genre,))
         books = c.fetchall()
+        for book in books:
+            returnlist.append(book)
         c.close()
-        return books
+        return returnlist
 
     def get_books_by_summary(self, summary):
         c = self.conn.cursor()
@@ -100,18 +127,22 @@ class Database:
 
     def get_books_by_query(self, query):
         c = self.conn.cursor()
+        returnlist = []
+        # Find books with a weak match to the query
         c.execute("SELECT * FROM books WHERE title LIKE ? OR author LIKE ? OR genre LIKE ? OR summary LIKE ?",
                   ('%' + query + '%', '%' + query + '%', '%' + query + '%', '%' + query + '%'))
         books = c.fetchall()
+        for book in books:
+            returnlist.append(book)
         c.close()
-        return books
+        return returnlist
 
-    def get_all_users(self):
+    def query(self, query):
         c = self.conn.cursor()
-        c.execute("SELECT * FROM users")
-        users = c.fetchall()
+        c.execute(query)
+        result = c.fetchall()
         c.close()
-        return users
+        return result
 
     def __enter__(self):
         self.conn = sqlite3.connect('Database.db')
@@ -123,6 +154,7 @@ class Database:
 
 def main():
     with Database('Database.db') as db:
+        silmarillionimage = open('static/images/The-Silmarillion-Book-Cover.jpg', 'rb').read()
         db.add_user('admin', 'admin', 'admin@Shelfworm.com')
         db.add_user('user', 'user', 'test@test.test')
         db.add_book('The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 9780261102217, None, 'The Hobbit is a fantasy novel')
@@ -131,7 +163,7 @@ def main():
         db.add_book('The Two Towers', 'J.R.R. Tolkien', 'Fantasy', 9780261102361, None, 'The Two Towers is a fantasy novel')
         db.add_book('The Return of the King', 'J.R.R. Tolkien', 'Fantasy', 9780261102378, None,
                     'The Return of the King is a fantasy novel')
-        db.add_book('The Silmarillion', 'J.R.R. Tolkien', 'Fantasy', 9780261102736, None, 'The Silmarillion is a fantasy novel')
+        db.add_book('The Silmarillion', 'J.R.R. Tolkien', 'Fantasy', 9780261102736, silmarillionimage, 'The Silmarillion is a fantasy novel')
         db.add_book('The Children of Hurin', 'J.R.R. Tolkien', 'Fantasy', 9780007246229, None, 'The Children of Hurin is a fantasy novel')
         db.add_book('The Fall of Gondolin', 'J.R.R. Tolkien', 'Fantasy', 9780008302757, None, 'The Fall of Gondolin is a fantasy novel')
         db.add_book('Beren and Luthien', 'J.R.R. Tolkien', 'Fantasy', 9780008214197, None, 'Beren and Luthien is a fantasy novel')

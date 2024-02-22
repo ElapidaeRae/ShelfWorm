@@ -1,5 +1,8 @@
+import time
+from datetime import timedelta
 from re import escape
 
+import requests
 from flask import Flask, render_template, request, redirect, url_for, session, g, blueprints
 import flask_login
 import stripe
@@ -29,19 +32,21 @@ stripe_keys = {
 # Set the stripe API key
 stripe.api_key = stripe_keys['secret_key']
 
-# Hardcoded users for the login system (for testing purposes)
-users = {'admin': {'password': 'admin'},
-         'user': {'password': 'user'},
-         'test': {'password': 'test'}}
-
 
 class User(flask_login.UserMixin):
     pass
 
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = manage.Database('Database.db')
+    return db
 
 @login_manager.user_loader
 def user_loader(username):
-    if username not in users:
+    db = get_db()
+    user = db.get_user(username)
+    if user is None:
         return
 
     user = User()
@@ -52,7 +57,9 @@ def user_loader(username):
 @login_manager.request_loader
 def request_loader(request):
     username = request.form.get('username')
-    if username not in users:
+    db = get_db()
+    user = db.get_user(username)
+    if user is None:
         return
 
     user = User()
@@ -72,9 +79,18 @@ def register():
 
     username = request.form['username']
     password = request.form['password']
-    # Add the new user to the users database
-    users[username] = {'password': password}
-    return redirect(url_for('login'))
+    email = request.form['email']
+    image = request.form['image']
+    db = manage.Database('Database.db')
+    try:
+        db.add_user(username, password, email, image)
+    except sqlite3.IntegrityError:
+        return 'Username already exists'
+    # Post-Registration, log the user in then redirect to the index page
+    user = User()
+    user.id = username
+    flask_login.login_user(user)
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -82,17 +98,24 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
 
+    db = get_db()
     username = request.form['username']
-    if request.form['password'] == users[username]['password']:
+    users = db.get_user(username)
+    salt = db.get_password_salt(request.form['password'])
+    
+    inputted_password = scrypt.hash(request.form['password'], salt)
+    actual_password = db.get_user_password(username)
+    if users is None:
+        return 'User not found'
+    if inputted_password == actual_password:
         user = User()
         user.id = username
         remember = request.form.get('remember')
         if remember:
-            flask_login.login_user(user, remember=True)
+            flask_login.login_user(user, remember=True, duration=timedelta(days=3))
         else:
-            flask_login.login_user(user)
+            flask_login.login_user(user, remember=False)
         return redirect(url_for('profile'))
-
     return redirect(url_for('login'))
 
 @app.route('/profile')
@@ -107,18 +130,13 @@ def search():
     return render_template('search.html')
 
 
-@app.route('/search_results/<search_query>')
-def search_results(search_query):
-    # Get the search results from the database
-    # This is a placeholder for the actual search results
-    search_results = [
-        {'title': 'Search Result 1', 'description': 'This is the first search result'},
-        {'title': 'Search Result 2', 'description': 'This is the second search result'},
-        {'title': 'Search Result 3', 'description': 'This is the third search result'},
-        {'title': 'Search Result 4', 'description': 'This is the fourth search result'},
-        {'title': 'Search Result 5', 'description': 'This is the fifth search result'}
-    ]
-    return render_template('search_results.html', search_query=search_query, search_results=search_results)
+# The book page will display the details of a book when the user clicks on a book in the search results
+@app.route('/book/<isbn>', methods=['GET'])
+def book(isbn):
+    # Get the book details from the database using the API
+    book_url = url_for('api.book', isbn=isbn)
+    book_data = requests.get(book_url).json()
+    return render_template('book.html', book=book_data)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -153,6 +171,16 @@ def logout():
     flask_login.logout_user()
     session.pop('username', None)
     return redirect(url_for('index'))
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 
 

@@ -10,7 +10,7 @@
 # be used by the front-end of the application, which is implemented using the Flask web framework. The front-end
 
 
-from flask import Blueprint, request, g, render_template
+from flask import Blueprint, request, g, render_template, logging
 import sqlite3
 from manage import Database
 
@@ -42,12 +42,30 @@ def index():
 @api.route('/search', methods=['POST'])
 def search():
     # Searches the books database for the user's query
-    query = request.form['query']
-    books = get_db().get_books_by_name(query)
-    # Return the search results as a list of JSON objects (one for each book)
-    return_books = []
-    for book in books:
-        book_dict = {'title': book[1], 'author': book[2], 'genre': book[3], 'isbn': book[4], 'summary': book[6]}
-        return_books.append(book_dict)
-    return return_books
+    # Use the request body as the query
+    query = request.get_json()['input']
+    if query is None:
+        return 'Invalid query'
+    print(query)
+    # Get the books database
+    db = get_db()
+    # Search the database for books that match the query
+    books = db.get_books_by_title(query)
+    print(books)
+    # Return the search results
+    return books
+
+
+@api.route('/book/<isbn>', methods=['GET'])
+def book(isbn):
+    # Returns the details of a book with the given ISBN
+    # Get the books database
+    db = get_db()
+    # Get the details of the book with the given ISBN
+    book = db.get_book_by_isbn(isbn)
+    # Convert the book image from bytes back into an image
+    book['image'] = book['image'].decode('base64')
+    # Convert the book details to JSON
+    book_data = {'title': book[0], 'author': book[1], 'genre': book[2], 'isbn': book[3], 'image': book[4], 'summary': book[5]}
+    return book_data
 
