@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="bg-background dark:bg-background-dark">
+
+    <div class="bg-background-light dark:bg-background-dark">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center">
-                <h1 class="text-4xl font-extrabold tracking-tight text-text dark:text-text-dark sm:text-5xl md:text-6xl">
+                <h1 class="text-4xl font-extrabold tracking-tight text-text dark:text-text-dark sm:text-5xl md:text-6xl" id="scramble">
                     <span class="block font-sans">Welcome to Shelfworm</span>
                     <span class="block font-sans text-primary">The best place to buy books</span>
                 </h1>
@@ -12,13 +13,15 @@
                     We have a wide selection of books for you to choose from. Whether you're looking for a new novel, a
                     self-help book, or a cookbook, we have it all.
                 </p>
-                <div class="mt-5 sm:mt-8">
+                <div class="mt-5 sm:mt-8" id="magButton">
                     <a href="/search"
-                       class="inline-block bg-background dark:bg-background-dark py-3 px-8 border border-transparent rounded-md text-base font-medium text-text dark:text-text-dark hover:bg-secondary">
+                       class="inline-block bg-background dark:bg-background-dark py-4 px-8 border border-transparent rounded-full text-base font-medium text-text dark:text-text-dark hover:bg-secondary">
                         Start Shopping
                     </a>
                 </div>
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="../static/js/base.js"></script>
 {% endblock %}

@@ -11,10 +11,24 @@
     function dropdown() {
         document.getElementById("ProfileDropdownContent").classList.toggle("show");
     }
+    window.onclick = function(event) {
+        if (!event.target.matches('.relative')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
 </script>
-<body>
+<script src="../static/js/darkmode.js"></script>
+<!-- If dark mode is enabled, add the dark class to the body -->
+<body class="flex flex-col min-h-screen">
     <!-- Header -->
-    <header class="bg-background-light dark:bg-background-dark">
+    <header class="bg-background-light dark:bg-background-dark flex-none">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- The navigation bar at the top of the screen with a logo -->
             <nav class="flex justify-between h-20">
@@ -22,12 +36,32 @@
                     <img src="../static/images/ShelfwormLogo.svg" alt="Shelfworm" class="h-20">
                 </a>
                 <div class="flex space-x-4 items-center">
+
+                    <!-- Dark mode toggle switch that hrefs to /dark_mode -->
+                    <label class="inline-flex items-center cursor-pointer" for="darkmode">
+                      <input type="checkbox" value="" class="sr-only peer" id="darkmode" onclick="toggleDarkMode()">
+                      <div class="relative w-11 h-6 bg-accent peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-accent dark:peer-focus:ring-primary rounded-full peer dark:bg-background-dark peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-background after:border-accent after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-primary peer-checked:bg-accent"></div>
+                      <span class="ms-3 text-sm font-medium text-text dark:text-text-dark">Dark Mode</span>
+                    </label>
+
+                    <!--<div class="flex items-center">
+                        <input type="checkbox" id="darkmode" class="hidden" onclick="toggleDarkMode()">
+                        <label for="darkmode" class="flex items-center cursor-pointer">
+                            <div class="w-10 h-5 bg-background-dark dark:bg-background rounded-full p-1">
+                                <div class="dot w-4 h-4 bg-background-dark dark:bg-background rounded-full shadow-md transform duration-300 ease-in-out"></div>
+                            </div>
+                            <span class="ml-3 text-text dark:text-text-dark font-medium">Dark Mode</span>
+                        </label>
+                    </div>-->
+
+                    <!-- Navigation links -->
                     <a href="/search" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Shop</a>
                     <a href="/cart" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Cart</a>
                     {% if not current_user.is_authenticated %}
                         <a href="/login" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Login</a>
                         <a href="/register" class="text-sm font-medium text-text dark:text-text-dark hover:text-gray-800 dark:hover:text-gray-200">Register</a>
                     {% elif current_user.is_authenticated %}
+
                     <!-- Profile Dropdown menu -->
                     <!-- Should show as a circle with the user's name next to it until clicked for now -->
                     <div class="relative px-4" onclick="dropdown()">
@@ -36,22 +70,21 @@
                                 <p class="text-sm font-medium text-text dark:text-text-dark hover:text-primary">{{ current_user.id }}</p>
                             </div>
                         </div>
-                        <div id="ProfileDropdownContent" class="hidden absolute right-0 mt-2 w-48 bg-background dark:bg-background-dark rounded-md shadow-lg z-10">
+                        <div id="ProfileDropdownContent" class="hidden absolute right-0 mt-2 w-48 bg-primary dark:bg-accent rounded-md shadow-lg z-10">
                             <a href="/profile" class="block px-4 py-2 text-sm text-text dark:text-text-dark hover:bg-primary">Profile</a>
                             <a href="/logout" class="block px-4 py-2 text-sm text-text dark:text-text-dark hover:bg-primary">Logout</a>
                         </div>
                     </div>
                     {% endif %}
-                    </div>
                 </div>
             </nav>
         </div>
     </header>
-    <main>
+    <main class="grow dark:bg-background-dark">
         {% block content %}{% endblock %}
     </main>
     <!-- Footer -->
-    <footer class="bg-background dark:bg-background-dark">
+    <footer class="bg-background dark:bg-background-dark flex-none">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex justify-between">
                 <div>
@@ -66,7 +99,6 @@
                     <a href="mailto:bharris@wootton.beds.sch.uk" class="text-sm font-medium text-text dark:text-text-dark hover:text-primary">
                         Contact Us
                     </a>
-
                 </div>
             </div>
         </div>

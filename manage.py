@@ -3,7 +3,7 @@
 
 import sqlite3
 import string
-
+import base64
 import scrypt
 import random
 import re
@@ -25,15 +25,14 @@ class Database:
                          (username text, email text, image blob, signup date, PRIMARY KEY(username))''')
         c.execute('''CREATE TABLE IF NOT EXISTS passwords
                          (username text, password text, salt text, FOREIGN KEY(username) REFERENCES users(username))''')
-        c.execute('''CREATE TABLE IF NOT EXISTS books (title TEXT, author TEXT, genre TEXT, isbn INTEGER, image BLOB, 
+        c.execute('''CREATE TABLE IF NOT EXISTS books (title TEXT, author TEXT, genre TEXT, isbn INTEGER, image TEXT, 
                     summary TEXT, price REAL, stock INTEGER, PRIMARY KEY(isbn))''')
 
     def add_user(self, username, password, email, image=None):
         c = self.conn.cursor()
         if image is None:
             # If no image is provided, use the default image in static
-            with open('static/images/BookDefault.png', 'rb') as file:
-                image = file.read()
+            image = 'static/images/BookDefault.jpg'
         c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (username, email, image, sqlite3.Date.today()))
         salt = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(32))
         hashed_password = scrypt.hash(password, salt)
@@ -76,10 +75,6 @@ class Database:
         return books
 
     def get_books_by_title(self, title):
-        """
-        :param title: The title of the book to search for
-        :type title: str
-        """
         c = self.conn.cursor()
         returnlist = []
         title = '%' + title + '%'
@@ -103,20 +98,12 @@ class Database:
     def get_books_by_genre(self, genre):
         c = self.conn.cursor()
         returnlist = []
-        c.execute("SELECT * FROM books WHERE genre=?", (genre,))
+        c.execute("SELECT * FROM books WHERE genre=?", (f'%{genre}%',))
         books = c.fetchall()
         for book in books:
             returnlist.append(book)
         c.close()
         return returnlist
-
-    def get_books_by_summary(self, summary):
-        c = self.conn.cursor()
-        # Find books with a weak match to the summary
-        c.execute("SELECT * FROM books WHERE summary LIKE ?", ('%' + summary + '%',))
-        books = c.fetchall()
-        c.close()
-        return books
 
     def get_all_books(self):
         c = self.conn.cursor()
@@ -137,12 +124,24 @@ class Database:
         c.close()
         return returnlist
 
-    def query(self, query):
+    def get_books_by_params(self, title, author, genre, isbn):
         c = self.conn.cursor()
-        c.execute(query)
-        result = c.fetchall()
+        returnlist = []
+        if title == '':
+            title = '%'
+        if author == '':
+            author = '%'
+        if genre == '':
+            genre = '%'
+        if isbn == '':
+            isbn = '%'
+        c.execute("SELECT * FROM books WHERE title LIKE ? AND author LIKE ? AND genre LIKE ? AND isbn LIKE ?",
+                  ('%' + title + '%', '%' + author + '%', '%' + genre + '%', '%' + isbn + '%'))
+        books = c.fetchall()
+        for book in books:
+            returnlist.append(book)
         c.close()
-        return result
+        return returnlist
 
     def __enter__(self):
         self.conn = sqlite3.connect('Database.db')
@@ -154,7 +153,9 @@ class Database:
 
 def main():
     with Database('Database.db') as db:
-        silmarillionimage = open('static/images/The-Silmarillion-Book-Cover.jpg', 'rb').read()
+        # Load the silmarillion image from the file as base64
+        with open('static/images/The-Silmarillion-Book-Cover.jpg', 'rb') as file:
+            silmarillionimage = base64.b64encode(file.read())
         db.add_user('admin', 'admin', 'admin@Shelfworm.com')
         db.add_user('user', 'user', 'test@test.test')
         db.add_book('The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 9780261102217, None, 'The Hobbit is a fantasy novel')
@@ -174,3 +175,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def random_string(length):
+    return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length))

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+    <!-- Custom error 500 page -->
+    <div class="flex justify-center p-8">
+        <div class="text-center">
+            <h1 class="text-9xl font-bold text-text dark:text-text-dark">500</h1>
+            <h2 class="text-2xl font-semibold text-text dark:text-text-dark">Internal Server Error</h2>
+            <p class="text-lg text-text dark:text-text-dark">Sorry, There was a problem on our end. Please try again later.</p>
+            <div class="mt-6">
+                <a href="{{ session.url }}" class="inline-block bg-background dark:bg-background-dark py-4 px-8 border border-transparent rounded-md text-base font-medium text-text dark:text-text-dark hover:bg-secondary">
+                    Go back
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,15 +1,20 @@
 import time
 from datetime import timedelta
 from re import escape
-
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session, g, blueprints
 import flask_login
 import stripe
 import scrypt
 import sqlite3
+
+from werkzeug.utils import secure_filename
+
 import manage
 from api import api
+from wtforms import StringField, PasswordField, EmailField, validators, FileField, BooleanField
+from flask_wtf import FlaskForm, RecaptchaField
+from flask_wtf.file import FileAllowed, FileSize
 
 # Create a new Flask application
 app = Flask(__name__)
@@ -33,14 +38,44 @@ stripe_keys = {
 stripe.api_key = stripe_keys['secret_key']
 
 
+RECAPTCHA_PARAMETERS = {'hl': 'en', 'render': 'explicit'}
+RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
+RECAPTCHA_PUBLIC_KEY = manage.random_string(40)
+RECAPTCHA_PRIVATE_KEY = manage.random_string(40)
+
+
+# The images that are allowed to be uploaded
+images = ['jpg', 'jpeg', 'png', 'bmp']
+
 class User(flask_login.UserMixin):
     pass
+
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', [validators.Length(min=4, max=25), validators.DataRequired()])
+    email = EmailField('Email Address', [validators.Length(min=6, max=35), validators.DataRequired()])
+    password = PasswordField('New Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords must match')
+    ])
+    confirm = PasswordField('Repeat Password')
+    image = FileField('Profile Picture', [validators.Optional(), FileAllowed(images, 'Images only!'), FileSize(max_size=1024 * 1024 * 5)])
+    # The profile picture must be a .jpg file and must not contain any slashes, periods or backslashes
+    recaptcha = RecaptchaField(validators=[validators.DataRequired()])
+
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', [validators.Length(min=4, max=25)])
+    password = PasswordField('Password', [validators.DataRequired()])
+    remember = BooleanField('Remember Me')
+
 
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = manage.Database('Database.db')
     return db
+
 
 @login_manager.user_loader
 def user_loader(username):
@@ -74,74 +109,83 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'GET':
-        return render_template('register.html')
+    form = RegistrationForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            db = get_db()
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            image = form.image.data
+            image_name = secure_filename(image.filename)
+            if image_name != '':
+                image.save('data/' + image_name)
+                image = 'data/' + image_name
 
-    username = request.form['username']
-    password = request.form['password']
-    email = request.form['email']
-    image = request.form['image']
-    db = manage.Database('Database.db')
-    try:
-        db.add_user(username, password, email, image)
-    except sqlite3.IntegrityError:
-        return 'Username already exists'
-    # Post-Registration, log the user in then redirect to the index page
-    user = User()
-    user.id = username
-    flask_login.login_user(user)
-    return redirect(url_for('index'))
+            db.add_user(username, password, email, image)
+            return redirect(url_for('login'))
+    return render_template('register.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'GET':
-        return render_template('login.html')
+def login():  # :TODO: Fix the login form, it doesn't work since using the LoginForm class
+    form = LoginForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            db = get_db()
+            username = form.username.data
+            users = db.get_user(username)
+            salt = db.get_password_salt(form.password.data)
+            inputted_password = scrypt.hash(form.password.data, salt)
+            actual_password = db.get_user_password(username)
+            if users is None:
+                return 'User not found'
+            if inputted_password == actual_password:
+                user = User()
+                user.id = username
+                remember = form.remember.data
+                if remember:
+                    flask_login.login_user(user, remember=True, duration=timedelta(days=3))
+                else:
+                    flask_login.login_user(user, remember=False)
+                if 'url' in session:
+                    return redirect(session.pop('url'))
+                else:
+                    return redirect(url_for('profile'))
+            return redirect(url_for('login'))
+    return render_template('login.html', form=form)
 
-    db = get_db()
-    username = request.form['username']
-    users = db.get_user(username)
-    salt = db.get_password_salt(request.form['password'])
-    
-    inputted_password = scrypt.hash(request.form['password'], salt)
-    actual_password = db.get_user_password(username)
-    if users is None:
-        return 'User not found'
-    if inputted_password == actual_password:
-        user = User()
-        user.id = username
-        remember = request.form.get('remember')
-        if remember:
-            flask_login.login_user(user, remember=True, duration=timedelta(days=3))
-        else:
-            flask_login.login_user(user, remember=False)
-        return redirect(url_for('profile'))
-    return redirect(url_for('login'))
 
 @app.route('/profile')
 @flask_login.login_required
 def profile():
+    session['url'] = url_for('profile')
     return render_template('profile.html')
 
 
 # The search page for the book store will dynamically display the search results when the user types in the search bar
 @app.route('/search')
 def search():
+    session['url'] = url_for('search')
     return render_template('search.html')
 
 
 # The book page will display the details of a book when the user clicks on a book in the search results
 @app.route('/book/<isbn>', methods=['GET'])
-def book(isbn):
-    # Get the book details from the database using the API
-    book_url = url_for('api.book', isbn=isbn)
-    book_data = requests.get(book_url).json()
-    return render_template('book.html', book=book_data)
+def book(isbn):  # :TODO: Make the book page display the book details
+    session['url'] = url_for('book', isbn=isbn)
+    # Get the book details from the database
+    db = get_db()
+    book = db.get_books_by_isbn(isbn)
+    if book is None:
+        return 'Book not found'
+    return render_template('book.html', book=book)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @flask_login.login_required
-def checkout():
+def checkout():  # :TODO: Add the stripe checkout system to the checkout page and add a checkout page
+    session['url'] = url_for('checkout')
     # Use the stripe Checkout system to process the payment
     # The payment amount is hardcoded to £20 for testing purposes
     amount = 2000
@@ -175,13 +219,37 @@ def logout():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html')  # :TODO: Add an about page
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('errors/404.html'), 404
 
+
+@app.errorhandler(500)
+@app.route('/500')
+def internal_server_error(e):
+    return render_template('errors/500.html'), 500
+
+
+# Update the session's dark mode setting to what is sent in the request
+@app.route('/dark_mode', methods=['POST', 'GET'])
+def dark_mode():
+    if request.method == 'GET':
+        return {'darkmode': session['dark_mode']}
+    dark_mode = request.get_json()['darkmode']
+    session['dark_mode'] = dark_mode
+    return {'message': 'Dark mode updated', 'darkmode': dark_mode}
+
+# test page for flask-wtf
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    form = RegistrationForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            return 'Form submitted successfully'
+    return render_template('test.html', form=form)
 
 
 if __name__ == '__main__':

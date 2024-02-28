@@ -12,6 +12,7 @@
 
 from flask import Blueprint, request, g, render_template, logging
 import sqlite3
+import base64
 from manage import Database
 
 api = Blueprint('api', __name__)
@@ -34,7 +35,7 @@ def index():
         return render_template('api_index.html')
     # If the request is a POST, return JSON
     elif request.method == 'POST':
-        return '{"message": "Hello, World!"}'
+        return {'message': 'Hello, World!'}
     else:
         return 'Invalid request method'
 
@@ -51,7 +52,6 @@ def search():
     db = get_db()
     # Search the database for books that match the query
     books = db.get_books_by_title(query)
-    print(books)
     # Return the search results
     return books
 
@@ -63,9 +63,19 @@ def book(isbn):
     db = get_db()
     # Get the details of the book with the given ISBN
     book = db.get_book_by_isbn(isbn)
-    # Convert the book image from bytes back into an image
-    book['image'] = book['image'].decode('base64')
     # Convert the book details to JSON
-    book_data = {'title': book[0], 'author': book[1], 'genre': book[2], 'isbn': book[3], 'image': book[4], 'summary': book[5]}
+    book_data = {'title': book[0], 'author': book[1], 'genre': book[2], 'isbn': book[3], 'image': book[4], 'summary': book[5], 'price': book[6], 'stock': book[7]}
     return book_data
 
+
+@api.route('/register', methods=['POST'])
+def register():
+    # Registers a new user based on the flask-wtf data from the registration form
+    # Get the request data
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
+    email = data['email']
+    image = data['image']
+    # Get the users database
+    db = get_db()

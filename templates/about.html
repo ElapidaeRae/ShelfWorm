@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+    <!-- About page using tailwindcss -->
+    <!-- The about page is a simple page that describes the purpose of the website and the team behind it. -->
+    <!-- The team is just me, Rae Noble, so it will have a picture of me and a short bio for each role I play in the project. -->
+    <!-- The about page will also have a link to the GitHub repository for the project. -->
+    <!-- The project uses flask and tailwindcss. All the code is written in Python and HTML. It is written for a college project -->
+    <!-- The website is a book store that allows users to search for and buy books. -->
+    <div class="flex flex-col items-center justify-center">
+        <div class="inline-block rounded-md ring-1 ring-accent shadow-lg p-4 m-4 justify-center">
+            <h1 class="text-4xl font-bold text-accent">About The website</h1>
+            <p class="text-lg font-semibold text-text">This website is a simple book store that allows users to search for and buy books.</p>
+            <p class="text-lg font-semibold text-text">It is written in Python using the Flask framework and Python by Rae Noble.</p>
+            <p class="text-lg font-semibold text-text">The website might be hosted on Heroku at some point.</p>
+            <p class="text-lg font-semibold text-text">The website is available on GitHub at <a href="https://github.com/ElapidaeRae/ShelfWorm" class="text-accent">https://github.com/ElapidaeRae/ShelfWorm</a></p>
+        </div>
+        <div class="inline-block rounded-md ring-1 ring-accent shadow-lg p-4 m-4 justify-center">
+            <h1 class="text-4xl font-bold text-accent">About The Developer</h1>
+            <div class="flex flex-col items-center justify-center">
+                <!-- Rae Noble is the sole developer of the website. -->
+
+                <!-- The only people who will see this page are the people who are marking the project and other students. -->
+                <!-- The website is a simple book store that allows users to search for and buy books. -->
+
+                <div class="flex flex-col items-center justify-center">
+                    <img src="/static/images/BookDefault.png" alt="Rae Noble" class="rounded-full h-40 w-40 object-cover"/>
+                    <p class="text-xl font-bold text-primary">Rae Noble</p>
+                    <p class="text-lg font-semibold text-text">Sole Proprietor</p>
+                    <p class="text-lg font-semibold text-text">Developer</p>
+                    <p class="text-lg font-semibold text-text">Designer</p>
+                    <p class="text-lg font-semibold text-text">Tester</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

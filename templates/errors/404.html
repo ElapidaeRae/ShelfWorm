@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+    <!-- Custom 404 error page -->
+    <div class="bg-background dark:bg-background-dark">
+        <div class="flex justify-center p-8">
+            <div class="text-center">
+                <h1 class="text-9xl font-bold text-text dark:text-text-dark">404</h1>
+                <h2 class="text-2xl font-semibold text-text dark:text-text-dark">Page not found</h2>
+                <p class="text-lg text-text dark:text-text-dark">Sorry, we couldn't find the page you were looking for.</p>
+                <div class="mt-6">
+                    <a href="{{ session.url }}" class="inline-block bg-background dark:bg-background-dark py-4 px-8 border border-transparent rounded-md text-base font-medium text-text dark:text-text-dark hover:bg-secondary">
+                        Go back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
