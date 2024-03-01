@@ -79,3 +79,32 @@ def register():
     image = data['image']
     # Get the users database
     db = get_db()
+
+    # Add the user to the database
+    db.add_user(username, password, email, image)
+    # Return a success message
+    return {'message': 'User registered successfully'}
+
+
+@api.route('/add_book', methods=['POST'])
+def add_book():
+    # Adds a new book to the database based on the flask-wtf data from the add book form
+    # Get the request data
+    data = request.get_json()
+    title = data['title']
+    author = data['author']
+    genre = data['genre']
+    year = data['year']
+    isbn = data['isbn']
+    image = data['image']
+    summary = data['summary']
+    price = data['price']
+    stock = data['stock']
+    # Get the books database
+    db = get_db()
+    # Add the book to the database
+    db.add_book(title, author, genre, year, isbn, image, summary, price, stock)
+    # Return a success message
+    return {'message': 'Book added successfully'}
+
+

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Admin form to add a book -->
+<!-- Uses tailwind css for styling and Flask-WTF for form handling -->
+    <div class="inline-block">
+        <h1>Register</h1>
+        <form method="post" action="/api/add_book">
+            <div class="mb-4">
+                {{ form.username.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.username(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>

@@ -9,10 +9,10 @@ const display = document.getElementById('display');
 const searchResultHtml = (item) => {
     return `
         <li class="text-lg text-text cursor-pointer hover:bg-primary dark:hover:bg-accent p-2 rounded-lg">
-            <a href="/book/${item[3]}" class="flex justify-between items-center">
+            <a href="/book/${item[4]}" class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <img src="data:image/jpg;base64,${item[4]}" class="w-16 h-16 rounded-lg" alt="${item[0]}">
-                    <div class="ml-2">
+                    <img src="${item[5]}" class="w-16 h-16 rounded-lg" alt="${item[0]}">
+                    <div class="ml-2 text-text dark:text-text-dark">
                         <p class="font-bold">${item[0]}</p>
                         <p class="text-sm">${item[1]}</p>
                     </div>

@@ -64,6 +64,15 @@
                     </ul>
                 {% endif %}
             </div>
+            <div class="mb-4">
+                {{ form.recaptcha }}
+                {% if form.recaptcha.errors %}
+                    <ul class="text-red-500">
+                        {% for error in form.recaptcha.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             <div class="flex items-center justify-between">
                 <button class="bg-primary hover:bg-secondary text-text font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
                     Register

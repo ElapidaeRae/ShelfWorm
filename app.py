@@ -7,67 +7,63 @@ import flask_login
 import stripe
 import scrypt
 import sqlite3
-
 from werkzeug.utils import secure_filename
-
 import manage
+from admin import admin
 from api import api
-from wtforms import StringField, PasswordField, EmailField, validators, FileField, BooleanField
-from flask_wtf import FlaskForm, RecaptchaField
-from flask_wtf.file import FileAllowed, FileSize
+from forms import RegistrationForm, LoginForm
+import config
 
 # Create a new Flask application
 app = Flask(__name__)
 # Set the secret key to some random bytes. For production, a random key should be used
-app.secret_key = 'According to all known laws of aviation, there is no way a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyway because bees don\'t care what humans think is impossible.'
+app.secret_key = config.secret_key
 
 app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(admin, url_prefix='/admin')
 
 # Create a login manager instance to manage the user session
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Set the stripe keys for the stripe API which will be used to process payments
-stripe_keys = {
-    'secret_key': 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
-    'publishable_key': 'pk_test_TYooMQauvdEDq54NiTphI7jx'
-}
+
 
 # Set the stripe API key
-stripe.api_key = stripe_keys['secret_key']
+stripe.api_key = config.stripe_keys['secret_key']
 
+# Set the recaptcha parameters
+app.config['RECAPTCHA_PARAMETERS'] = config.RECAPTCHA_PARAMETERS
+app.config['RECAPTCHA_DATA_ATTRS'] = config.RECAPTCHA_DATA_ATTRS
+app.config['RECAPTCHA_PUBLIC_KEY'] = config.RECAPTCHA_PUBLIC_KEY
+app.config['RECAPTCHA_PRIVATE_KEY'] = config.RECAPTCHA_PRIVATE_KEY
 
-RECAPTCHA_PARAMETERS = {'hl': 'en', 'render': 'explicit'}
-RECAPTCHA_DATA_ATTRS = {'theme': 'dark'}
-RECAPTCHA_PUBLIC_KEY = manage.random_string(40)
-RECAPTCHA_PRIVATE_KEY = manage.random_string(40)
-
-
-# The images that are allowed to be uploaded
-images = ['jpg', 'jpeg', 'png', 'bmp']
 
 class User(flask_login.UserMixin):
     pass
 
 
-class RegistrationForm(FlaskForm):
-    username = StringField('Username', [validators.Length(min=4, max=25), validators.DataRequired()])
-    email = EmailField('Email Address', [validators.Length(min=6, max=35), validators.DataRequired()])
-    password = PasswordField('New Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')
-    ])
-    confirm = PasswordField('Repeat Password')
-    image = FileField('Profile Picture', [validators.Optional(), FileAllowed(images, 'Images only!'), FileSize(max_size=1024 * 1024 * 5)])
-    # The profile picture must be a .jpg file and must not contain any slashes, periods or backslashes
-    recaptcha = RecaptchaField(validators=[validators.DataRequired()])
+@app.before_request
+def before_request():
+    g.user = flask_login.current_user
+    if 'username' in session:
+        g.username = session['username']
+
+    else:
+        g.username = None
+    if 'dark_mode' in session:
+        g.dark_mode = session['dark_mode']
+    else:
+        session['dark_mode'] = False
+        g.dark_mode = False
 
 
-class LoginForm(FlaskForm):
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    password = PasswordField('Password', [validators.DataRequired()])
-    remember = BooleanField('Remember Me')
+@app.after_request
+def after_request(response):
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 def get_db():
@@ -86,6 +82,7 @@ def user_loader(username):
 
     user = User()
     user.id = username
+    user.role = db.get_user_role(username)
     return user
 
 
@@ -128,7 +125,7 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():  # :TODO: Fix the login form, it doesn't work since using the LoginForm class
+def login():
     form = LoginForm()
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -180,6 +177,7 @@ def book(isbn):  # :TODO: Make the book page display the book details
     if book is None:
         return 'Book not found'
     return render_template('book.html', book=book)
+
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
