@@ -6,6 +6,34 @@
         <h1>Register</h1>
         <form method="post" action="/api/add_book">
             <div class="mb-4">
-                {{ form.username.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
-                {{ form.username(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.title.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.title(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.author.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.author(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.genre.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.genre(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.year.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.year(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.isbn.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.isbn(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.image.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                {{ form.image(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.summary.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2") }}
+                <!-- Multiline text area for summary -->
+                {{ form.summary(class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-4">
+                {{ form.submit(class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
             </div>

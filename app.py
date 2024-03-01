@@ -1,4 +1,3 @@
-import time
 from datetime import timedelta
 from re import escape
 import requests
@@ -6,7 +5,6 @@ from flask import Flask, render_template, request, redirect, url_for, session, g
 import flask_login
 import stripe
 import scrypt
-import sqlite3
 from werkzeug.utils import secure_filename
 import manage
 from admin import admin
@@ -198,7 +196,7 @@ def checkout():  # :TODO: Add the stripe checkout system to the checkout page an
             source=token,
         )
         return redirect(url_for('checkout_confirmation'))
-    return render_template('checkout.html', stripe_keys=stripe_keys, amount=amount)
+    return render_template('checkout.html', stripe_keys=config.stripe_keys, amount=amount)
 
 
 @app.route('/checkout_confirmation')
