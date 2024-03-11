@@ -26,6 +26,9 @@
                 <!-- TODO: Add a range slider for the price filter -->
                 <div class="mt-2">
                     <label for="price" class="text-text dark:text-text-dark">Price</label>
+                    <input type="number" id="price-min" class="border-2 border-accent p-2 w-full" placeholder="Min">
+                    <input type="number" id="price-max" class="border-2 border-accent p-2 w-full" placeholder="Max">
+
                     <input type="range" id="price" class="border-2 border-accent p-2 w-full" min="0" max="100" step="1">
                 </div>
 
@@ -36,8 +39,21 @@
 
             </div>
         </div>
-        <div id="display" class="flex flex-col w-1/2 ml-4">
-        </div>
+
+        <table class="w-1/2 border-2 border-accent p-2 m-2">
+            <thead class="sticky top-0 h-8">
+                <tr>
+                    <th class="text-text dark:text-text-dark">Title</th>
+                    <th class="text-text dark:text-text-dark">Author</th>
+                    <th class="text-text dark:text-text-dark">Genre</th>
+                    <th class="text-text dark:text-text-dark">Year of release</th>
+                    <th class="text-text dark:text-text-dark">Price</th>
+                </tr>
+            </thead>
+            <tbody id="display">
+                <!-- The search results will be displayed here -->
+            </tbody>
+        </table>
     </div>
 <script src="../static/js/search.js"></script>
 {% endblock %}

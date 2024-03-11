@@ -1,30 +1,43 @@
 {% extends 'base.html' %}
 {% block content %}
-    <!-- The template page for each book. -->
-    <!-- The page will display the book's: title, author, genre, image, price and stock -->
-    <div class="flex align-center">
-        <div class="p-4 m-4 bg-background rounded-lg shadow-lg">
-            <!-- The book's title should be displayed above the image on the left -->
-            <div class="text-left font-bold text-4xl">
-                <span class="block font-sans">{{ book[0] }}</span>
-                <span class="items-center">
-                    <img src="data:image/jpg;base64,{{ book[4] }}" alt="Book Cover" class="w-1/2 h-1/2">
-                </span>
-            <div class="flex">
-                <div class="flex flex-col justify-between ml-4 p-4">
-                    <!-- The book's author should be displayed on the right -->
-                    <p class="text-xl font-semibold">Author: {{ book[1] }}</p>
-                    <!-- The book's genre should be displayed on the right -->
-                    <p class="text-xl font-semibold">Genre: {{ book[2] }}</p>
-                    <!-- The book's price should be displayed on the right -->
-                    <p class="text-xl font-semibold">Price: £{{ book[6] }}</p>
-                    <!-- The book's stock should be displayed on the right -->
-                    <p class="text-xl font-semibold">Stock: {{ book[7] }}</p>
-                    <div class="flex">
-                        <!-- The 'Add to Cart' button should be displayed on the right -->
-                        <form action="/add_to_cart/{{ book[3] }}" method="post">
-                            <button type="submit" class="bg-primary text-white font-semibold px-4 py-2 rounded-lg">Add to Cart</button>
-                        </form>
+    <!-- The template page for each book made with tailwindcss -->
+    <!-- The page will display the book's: title(0), author(1), genre(2), year of release(3), image(5), price(7) and stock(8) in that order in a card in a div -->
+    <!-- In a separate div will be the summary(6) and the add to cart button -->
+    <!-- On smaller screens the page will be responsive and the card will be placed above the summary and the add to cart button div -->
+    <div class="flex justify-center">
+        <div class="w-1/2">
+            <div class="flex flex-wrap justify-center">
+                <div class="min-w-96 md:min-w-0 lg:w-1/2 p-4">
+                    <div class="max-w-sm rounded overflow-hidden shadow-lg">
+                        <img class="w-full" src="{{ "../" + book[5] }}" alt="{{ book[0] }}">
+                        <div class="px-6 py-4">
+                            <div class="font-bold text-text dark:text-text-dark text-xl mb-2">{{ book[0] }}</div>
+                            <p class="text-text dark:text-text-dark text-base">
+                                <strong>Author:</strong> {{ book[1] }}<br>
+                                <strong>Genre:</strong> {{ book[2] }}<br>
+                                <strong>Year:</strong> {{ book[3] }}<br>
+                                <strong>Price:</strong> £{{ book[7] }}<br>
+                                <strong>Stock:</strong> {{ book[8] }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="min-w-96 md:min-w-0 lg:w-1/2 p-4">
+                    <div class="max-w-sm rounded overflow-hidden shadow-lg">
+                        <div class="px-6 py-4">
+                            <p class="text-text dark:text-text-dark text-base">
+                                {{ book[6] }}
+                            </p>
+                        </div>
+                        <div class="px-6 py-4">
+                            <form action="/api/add_to_cart" method="post">
+                                {{ form.csrf_token }}
+                                {{ form.quantity(class="w-1/2 p-2 rounded border-2 border-accent", type="number", placeholder="Quantity", min="1", max=book[8]) }}
+                                <!-- The isbn is hidden so the user can't see it -->
+                                {{ form.isbn(value=book[4]) }}
+                                <button type="submit" class="p-2 bg-primary rounded text-text dark:text-text-dark">Add to Cart</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>

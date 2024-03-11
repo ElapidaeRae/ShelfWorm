@@ -1,13 +1,13 @@
 from flask_wtf import FlaskForm, RecaptchaField
 from flask_wtf.file import FileField, FileAllowed, FileSize
 from wtforms import validators
-from wtforms.fields.simple import StringField, PasswordField, BooleanField, EmailField
+from wtforms.fields.simple import StringField, PasswordField, BooleanField, EmailField, HiddenField
 
 from config import images, image_max_size
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', [validators.Length(min=4, max=25)])
+    username = StringField('Username', [validators.Length(min=4, max=25), validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
     remember = BooleanField('Remember Me')
 
@@ -35,3 +35,8 @@ class AddBookForm(FlaskForm):
     summary = StringField('Summary', [validators.Length(min=1, max=1500), validators.DataRequired()])
     price = StringField('Price', [validators.Length(min=1, max=4), validators.Optional()])
     stock = StringField('Stock', [validators.Length(min=1, max=6), validators.Optional()])
+
+
+class AddToCartForm(FlaskForm):
+    quantity = StringField('Quantity', [validators.Length(min=1, max=3), validators.DataRequired()])
+    isbn = HiddenField('ISBN', [validators.Length(min=13, max=13), validators.DataRequired()])

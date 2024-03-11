@@ -66,3 +66,60 @@ magButton.addEventListener('mouseleave', () => {
     });
 });
 
+// End of magnetic button functionality
+
+
+// Implementing the dropdown menu functionality
+
+// There are currently two dropdowns in the header, one for the user and one for the cart. Both are implemented in the same way.
+// The dropdown is hidden by default and is shown when the user clicks on the dropdown button.
+// The dropdown is hidden when the user clicks outside of the dropdown.
+// Dropdown buttons have the ids of 'ProfileDropdownButton' and 'CartDropdownButton' respectively.
+// The content of the dropdowns is in the last child of the dropdown buttons with the class of 'dropdown-content'.
+
+// Find the dropdown buttons
+const profileDropdownButton = document.getElementById('ProfileDropdownButton');
+const cartDropdownButton = document.getElementById('CartDropdownButton');
+
+// Find the dropdown content
+const profileDropdownContent = profileDropdownButton.lastElementChild;
+const cartDropdownContent = cartDropdownButton.lastElementChild;
+
+// Add an event listener to the document that listens for a click event
+document.addEventListener('click', (e) => {
+    // If the user clicks outside of the profile dropdown, hide the dropdown
+    if (!profileDropdownButton.contains(e.target)) {
+        profileDropdownContent.style.display = 'none';
+    }
+    // If the user clicks outside of the cart dropdown, hide the dropdown
+    if (!cartDropdownButton.contains(e.target)) {
+        cartDropdownContent.style.display = 'none';
+    }
+});
+
+// Add an event listener to the profile dropdown button that listens for a click event
+profileDropdownButton.addEventListener('click', () => {
+    // If the dropdown is hidden, show the dropdown
+    if (profileDropdownContent.style.display === 'none') {
+        profileDropdownContent.style.display = 'block';
+    }
+    // If the dropdown is shown, hide the dropdown
+    else {
+        profileDropdownContent.style.display = 'none';
+    }
+});
+
+// Add an event listener to the cart dropdown button that listens for a click event
+cartDropdownButton.addEventListener('click', () => {
+    // If the dropdown is hidden, show the dropdown
+    if (cartDropdownContent.style.display === 'none') {
+        cartDropdownContent.style.display = 'block';
+    }
+    // If the dropdown is shown, hide the dropdown
+    else {
+        cartDropdownContent.style.display = 'none';
+    }
+});
+
+// End of dropdown menu functionality
+

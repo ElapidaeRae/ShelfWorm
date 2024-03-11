@@ -68,5 +68,5 @@ def add_book():
     # If the request method is GET, Check if the user has the role of admin, if not, throw a 404 error
     if g.user.role != 'admin':
         return render_template('errors/404.html')
-    return render_template('add_book.html', form=form)
+    return render_template('admin/add_book.html', form=form)
 

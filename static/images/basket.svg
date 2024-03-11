@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="120"
+   height="120"
+   viewBox="0 0 120 120"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   sodipodi:docname="basket.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     inkscape:zoom="6.775"
+     inkscape:cx="58.154982"
+     inkscape:cy="60"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       d="M 87.636719,56.960937 H 82.873047 18.486328 L 34.570312,103.84375 H 85.429687 L 101.51367,56.960937 Z"
+       style="fill:#ad02c0;stroke:#1a202c;stroke-width:0;stroke-linecap:round;paint-order:stroke fill markers;fill-opacity:1"
+       id="path4" />
+    <path
+       d="m 62.197266,22.443359 c 0,0 -27.626954,-1.206122 -27.626954,34.517578 L 60,25.289062 82.873047,56.960937 h 4.763672 z"
+       style="opacity:1;stroke:#ad02c0;stroke-width:0;stroke-linecap:round;paint-order:stroke fill markers;stroke-opacity:1;fill:#ad02c0;fill-opacity:1"
+       id="path5" />
+  </g>
+</svg>

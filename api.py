@@ -10,7 +10,7 @@
 # be used by the front-end of the application, which is implemented using the Flask web framework. The front-end
 
 
-from flask import Blueprint, request, g, render_template, logging
+from flask import Blueprint, request, g, render_template, logging, session
 import sqlite3
 import base64
 from manage import Database
@@ -83,7 +83,26 @@ def register():
     # Add the user to the database
     db.add_user(username, password, email, image)
     # Return a success message
-    return {'message': 'User registered successfully'}
+    return {'response': 'User added successfully',
+            'Content-Type': 'application/json'}
+
+
+@api.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    # Adds a book to the user's cart based on the isbn of the page the user is on and the quantity the user wants to add
+    # Get the request data
+    data = request.get_json()
+    isbn = data['isbn']
+    quantity = data['quantity']
+    # Use the user's session to store the cart data
+    if 'cart' not in session:
+        session['cart'] = {}
+    if isbn in session['cart']:
+        session['cart'][isbn] += quantity
+    else:
+        session['cart'][isbn] = quantity
+    # Return a success message
+    return {'message': 'Book added to cart successfully'}
 
 
 @api.route('/add_book', methods=['POST'])

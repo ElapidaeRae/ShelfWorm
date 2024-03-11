@@ -4,12 +4,11 @@ import requests
 from flask import Flask, render_template, request, redirect, url_for, session, g, blueprints
 import flask_login
 import stripe
-import scrypt
 from werkzeug.utils import secure_filename
 import manage
 from admin import admin
 from api import api
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm, LoginForm, AddToCartForm
 import config
 
 # Create a new Flask application
@@ -24,8 +23,6 @@ app.register_blueprint(admin, url_prefix='/admin')
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
-
 
 # Set the stripe API key
 stripe.api_key = config.stripe_keys['secret_key']
@@ -114,8 +111,8 @@ def register():
             image = form.image.data
             image_name = secure_filename(image.filename)
             if image_name != '':
-                image.save('data/' + image_name)
-                image = 'data/' + image_name
+                image.save('/data' + image_name)
+                image = '/data' + image_name
 
             db.add_user(username, password, email, image)
             return redirect(url_for('login'))
@@ -130,12 +127,12 @@ def login():
             db = get_db()
             username = form.username.data
             users = db.get_user(username)
-            salt = db.get_password_salt(form.password.data)
-            inputted_password = scrypt.hash(form.password.data, salt)
+            inputted_password = form.password.data
             actual_password = db.get_user_password(username)
+            print(users, actual_password, inputted_password)
             if users is None:
                 return 'User not found'
-            if inputted_password == actual_password:
+            if config.argon2hasher.verify(actual_password, inputted_password):
                 user = User()
                 user.id = username
                 remember = form.remember.data
@@ -147,7 +144,6 @@ def login():
                     return redirect(session.pop('url'))
                 else:
                     return redirect(url_for('profile'))
-            return redirect(url_for('login'))
     return render_template('login.html', form=form)
 
 
@@ -168,35 +164,37 @@ def search():
 # The book page will display the details of a book when the user clicks on a book in the search results
 @app.route('/book/<isbn>', methods=['GET'])
 def book(isbn):  # :TODO: Make the book page display the book details
+    form = AddToCartForm()
     session['url'] = url_for('book', isbn=isbn)
     # Get the book details from the database
     db = get_db()
-    book = db.get_books_by_isbn(isbn)
+    book = db.get_book_by_isbn(isbn)
     if book is None:
-        return 'Book not found'
-    return render_template('book.html', book=book)
-
+        return render_template('errors/404.html')
+    return render_template('book.html', book=book, form=form)
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
 @flask_login.login_required
-def checkout():  # :TODO: Add the stripe checkout system to the checkout page and add a checkout page
+def checkout():
     session['url'] = url_for('checkout')
+    if 'cart' not in session:
+        return redirect(url_for('index'))
+    # Get the user's cart from the session
+    cart = session['cart']
+    # Itemize the cart
+    items = config.itemize_cart(cart)
+
     # Use the stripe Checkout system to process the payment
-    # The payment amount is hardcoded to £20 for testing purposes
-    amount = 2000
-    if request.method == 'POST':
-        # Get the token from the form
-        token = request.form['stripeToken']
-        # Create a charge using the token
-        charge = stripe.Charge.create(
-            amount=amount,
-            currency='gbp',
-            description='Example charge',
-            source=token,
-        )
-        return redirect(url_for('checkout_confirmation'))
-    return render_template('checkout.html', stripe_keys=config.stripe_keys, amount=amount)
+    # Start the stripe session
+    checkout_session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=items,
+        mode='payment',
+        success_url=url_for('checkout_confirmation', _external=True),
+        cancel_url=url_for('checkout', _external=True)
+    )
+    return render_template('checkout.html', checkout_session_id=checkout_session.id)
 
 
 @app.route('/checkout_confirmation')
@@ -238,14 +236,12 @@ def dark_mode():
     session['dark_mode'] = dark_mode
     return {'message': 'Dark mode updated', 'darkmode': dark_mode}
 
+
 # test page for flask-wtf
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    form = RegistrationForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            return 'Form submitted successfully'
-    return render_template('test.html', form=form)
+    # return the book_mobile.html page
+    return render_template('book_mobile.html')
 
 
 if __name__ == '__main__':

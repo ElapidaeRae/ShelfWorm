@@ -8,18 +8,13 @@ const display = document.getElementById('display');
 // Html tags for each search result.
 const searchResultHtml = (item) => {
     return `
-        <li class="text-lg text-text cursor-pointer hover:bg-primary dark:hover:bg-accent p-2 rounded-lg">
-            <a href="/book/${item[4]}" class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <img src="${item[5]}" class="w-16 h-16 rounded-lg" alt="${item[0]}">
-                    <div class="ml-2 text-text dark:text-text-dark">
-                        <p class="font-bold">${item[0]}</p>
-                        <p class="text-sm">${item[1]}</p>
-                    </div>
-                </div>
-                <p class="text-primary dark:text-primary-dark">${item[6]}</p>
-            </a>
-        </li>
+    <tr class="table-row hover:bg-primary p-2 rounded-lg text-text dark:text-text-dark" onclick="window.location.href='/book/${item[4]}'">
+        <td class="table-cell"><a href="/book/${item[4]}">${item[0]}</a></td>
+        <td class="table-cell"><a href="/book/${item[4]}">${item[1]}</a></td>
+        <td class="table-cell"><a href="/book/${item[4]}">${item[2]}</a></td>
+        <td class="table-cell"><a href="/book/${item[4]}">${item[3]}</a></td>
+        <td class="table-cell"><a href="/book/${item[4]}">${item[7]}</a></td>
+    </tr>
     `;
 }
 
@@ -62,18 +57,10 @@ function displayItems(result) {
     }
     // Otherwise, display the items
     else {
-        // Create a list of items to display
-        // The list will be an unordered list of items that users can click on to view the item details
-        // Each item will be a list item with appropriate styling with tailwindcss
-        const list = document.createElement('ul', {id: 'item_list', class: 'rounded-md bg-background p-4 ring-1 ring-accent ring-opacity-20 shadow-lg w-full'});
-        // Add each item to the list
+        // For each item, display it in the display div
         items.forEach(item => {
-            const listItem = document.createElement('li', {class: 'text-lg text-text cursor-pointer hover:bg-primary dark:hover:bg-primary-dark p-2 rounded-lg'});
-            listItem.innerHTML = searchResultHtml(item);
-            list.appendChild(listItem);
+            display.innerHTML += searchResultHtml(item);
         });
-        // Add the list to the display
-        display.appendChild(list);
     }
 }
 

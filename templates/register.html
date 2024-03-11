@@ -8,7 +8,7 @@
             <div class="mb-4">
                 {{ form.csrf_token }}
                 {{ form.username.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2")}}
-                {{ form.username(placeholder="Username", size=30, class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.username(placeholder="Username", size=30, class="shadow appearance-none border rounded w-full py-2 px-3 text-text leading-tight focus:outline-none focus:shadow-outline") }}
                 {% if form.username.errors %}
                     <ul class="text-red-500">
                         {% for error in form.username.errors %}
@@ -19,7 +19,7 @@
             </div>
             <div class="mb-4">
                 {{ form.email.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2")}}
-                {{ form.email(placeholder="Email", size=50, class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.email(placeholder="Email", size=50, class="shadow appearance-none border rounded w-full py-2 px-3 text-text leading-tight focus:outline-none focus:shadow-outline") }}
                 {% if form.email.errors %}
                     <ul class="text-red-500">
                         {% for error in form.email.errors %}
@@ -33,7 +33,7 @@
                     <label for="password" class="block text-text dark:text-text-dark text-sm font-bold mb-2">Password</label>
                     <a href="/coming_soon" class="text-primary hover:text-secondary text-sm">Forgot password?</a> <!-- Link to password reset page -->
                 </div>
-                {{ form.password(placeholder="Password", class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.password(placeholder="Password", class="shadow appearance-none border rounded w-full py-2 px-3 text-text leading-tight focus:outline-none focus:shadow-outline") }}
                 {% if form.password.errors %}
                     <ul class="text-red-500">
                         {% for error in form.password.errors %}
@@ -44,7 +44,7 @@
             </div>
             <div class="mb-4">
                 {{ form.confirm.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2")}}
-                {{ form.confirm(placeholder="Confirm Password", class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.confirm(placeholder="Confirm Password", class="shadow appearance-none border rounded w-full py-2 px-3 text-text leading-tight focus:outline-none focus:shadow-outline") }}
                 {% if form.confirm.errors %}
                     <ul class="text-red-500">
                         {% for error in form.confirm.errors %}
@@ -55,7 +55,7 @@
             </div>
             <div class="mb-4">
                 {{ form.image.label(class="block text-text dark:text-text-dark text-sm font-bold mb-2")}}
-                {{ form.image(placeholder="Profile Picture", class="shadow appearance-none border rounded w-full py-2 px-3 text-text dark:text-text-dark leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.image(placeholder="Profile Picture", class="shadow appearance-none border rounded w-full py-2 px-3 text-text leading-tight focus:outline-none focus:shadow-outline") }}
                 {% if form.image.errors %}
                     <ul class="text-red-500">
                         {% for error in form.image.errors %}
